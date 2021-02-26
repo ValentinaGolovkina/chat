@@ -1,0 +1,15 @@
+.button{
+    -fx-font: bold italic 10pt "Arial";
+    -fx-background-color: #addfad;
+    -fx-border-color: #00008b;
+    -fx-text-fill: #00008b;
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+    -fx-padding: 3 10 3 10;
+    -fx-margin: 10;
+}
+.text-area{
+    -fx-control-inner-background: #c5cbeb;
+    -fx-text-fill: #00008b;
+    -fx-font: italic 15pt "Arial";
+}
