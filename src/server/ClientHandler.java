@@ -47,9 +47,13 @@ public class ClientHandler {
                         if (str.equals("/end")) {
                             break;
                         }
-//                            System.out.println("Клиент " + str);
-//                            out.writeUTF("echo: " + str);
-                        server.broadcastMsg(this, str);
+                        if(str.startsWith("/w ")){
+                            System.out.println("Личное сообщение " + str);
+                            String[] message = str.split("\\s");
+                            server.privateMsg(this,message[1],message[2]);
+                        } else {
+                            server.broadcastMsg(this, str);
+                        }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

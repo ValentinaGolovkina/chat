@@ -49,6 +49,16 @@ public class Server{
         }
     }
 
+    public void privateMsg(ClientHandler sender, String recipientNick,String msg) {
+        String message = String.format("%s : %s", sender.getNickName(), msg);
+        for (ClientHandler client : clients) {
+            if(client.getNickName().equals(recipientNick)){
+                client.sendMsg(message);
+                sender.sendMsg(message);
+                break;
+            }
+        }
+    }
     public void subscribe(ClientHandler clientHandler) {
         clients.add(clientHandler);
     }
