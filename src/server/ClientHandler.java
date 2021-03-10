@@ -11,6 +11,7 @@ public class ClientHandler {
     private DataInputStream in;
     private DataOutputStream out;
     private String nickName;
+    private String login;
 
     public ClientHandler(Server server, Socket socket) {
 
@@ -27,16 +28,38 @@ public class ClientHandler {
                         String str = in.readUTF();
                         if (str.startsWith("/auth")) {
                             String[] token = str.split("\\s");
+                            if (token.length <3){
+                                continue;
+                            }
                             String newNick = server.getAuthService()
                                     .getNickByLoginAndPassword(token[1], token[2]);
+                            login = token[1];
                             if (newNick != null) {
-                                nickName = newNick;
-                                sendMsg("/authok " + nickName);
-                                server.subscribe(this);
-                                System.out.println("Клиент " + nickName + " подключился");
-                                break;
+                                if (!server.isLoginAuthenticated(login)) {
+                                    nickName = newNick;
+                                    sendMsg("/authok " + nickName);
+                                    server.subscribe(this);
+                                    System.out.println("Клиент " + nickName + " подключился");
+                                    break;
+                                } else {
+                                    sendMsg("С данной учетной записью уже зашли");
+                                }
                             } else {
                                 sendMsg("Неверный логин / пароль");
+                            }
+                        }
+
+                        if(str.startsWith("/reg")){
+                            String[] token = str.split("\\s");
+                            if(token.length < 4){
+                                continue;
+                            }
+                            boolean isRegistration = server.getAuthService()
+                                    .registration(token[1], token[2], token[3]);
+                            if (isRegistration){
+                                sendMsg("/regok");
+                            }else {
+                                sendMsg("/regno");
                             }
                         }
                     }
@@ -44,12 +67,22 @@ public class ClientHandler {
                     //цикл работы
                     while (true) {
                         String str = in.readUTF();
-                        if (str.equals("/end")) {
-                            break;
+                        if (str.startsWith("/")) {
+                            System.out.println(str);
+                            if (str.equals("/end")) {
+                                out.writeUTF("/end");
+                                break;
+                            }
+                            if (str.startsWith("/w")) {
+                                String[] token = str.split("\\s+", 3);
+                                if (token.length < 3) {
+                                    continue;
+                                }
+                                server.privateMsg(this, token[1], token[2]);
+                            }
+                        } else {
+                            server.broadcastMsg(this, str);
                         }
-//                            System.out.println("Клиент " + str);
-//                            out.writeUTF("echo: " + str);
-                        server.broadcastMsg(this, str);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -77,7 +110,11 @@ public class ClientHandler {
         }
     }
 
-    public String getNickName(){
+    public String getNickName() {
         return nickName;
+    }
+
+    public String getLogin() {
+        return login;
     }
 }
