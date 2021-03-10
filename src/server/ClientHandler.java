@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 public class ClientHandler {
     private Server server;
@@ -23,6 +24,7 @@ public class ClientHandler {
 
             new Thread(() -> {
                 try {
+                    socket.setSoTimeout(120000);
                     // цикл аутентифиукаии
                     while (true) {
                         String str = in.readUTF();
@@ -36,6 +38,7 @@ public class ClientHandler {
                             login = token[1];
                             if (newNick != null) {
                                 if (!server.isLoginAuthenticated(login)) {
+                                    socket.setSoTimeout(0);
                                     nickName = newNick;
                                     sendMsg("/authok " + nickName);
                                     server.subscribe(this);
@@ -83,6 +86,12 @@ public class ClientHandler {
                         } else {
                             server.broadcastMsg(this, str);
                         }
+                    }
+                } catch (SocketTimeoutException e) {
+                    try {
+                        out.writeUTF("/end");
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

@@ -131,6 +131,9 @@ public class Controller implements Initializable {
                         // цикл аутентификации
                         while (true) {
                             String str = in.readUTF();
+                            if (str.equals("/end")) {
+                                break;
+                            }
                             if (str.startsWith("/authok")) {
                                 nickName = str.split(" ", 2)[1];
                                 setAuthenticated(true);
