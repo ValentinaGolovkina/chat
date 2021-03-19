@@ -85,4 +85,12 @@ public class BD {
         }
     }
 
+    public void closeConn(){
+        try {
+            if(!conn.isClosed()) conn.close();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
 }

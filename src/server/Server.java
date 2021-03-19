@@ -3,9 +3,6 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -15,7 +12,7 @@ public class Server{
     SimpleDateFormat formater = new SimpleDateFormat("HH:mm:ss");
     List<ClientHandler> clients;
     private AuthService authService;
-    Connection conn;
+    BD bd;
 
     private static int PORT = 8189;
     ServerSocket server = null;
@@ -23,7 +20,7 @@ public class Server{
 
     public Server() {
         clients = new Vector<>();
-        BD bd= new BD();
+        bd= new BD();
         if(bd.isOK) authService = new sqlLiteAuthService(bd);
         else authService = new SimpleAuthService();
 
@@ -40,11 +37,7 @@ public class Server{
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            try {
-                if(!conn.isClosed()) conn.close();
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
+            bd.closeConn();
             try {
                 server.close();
             } catch (IOException e) {
