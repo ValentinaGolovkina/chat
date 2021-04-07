@@ -12,6 +12,7 @@ public class Server{
     SimpleDateFormat formater = new SimpleDateFormat("HH:mm:ss");
     List<ClientHandler> clients;
     private AuthService authService;
+    BD bd;
 
     private static int PORT = 8189;
     ServerSocket server = null;
@@ -19,7 +20,9 @@ public class Server{
 
     public Server() {
         clients = new Vector<>();
-        authService = new SimpleAuthService();
+        bd= new BD();
+        if(bd.isOK) authService = new sqlLiteAuthService(bd);
+        else authService = new SimpleAuthService();
 
         try {
             server = new ServerSocket(PORT);
@@ -34,6 +37,7 @@ public class Server{
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            bd.closeConn();
             try {
                 server.close();
             } catch (IOException e) {
